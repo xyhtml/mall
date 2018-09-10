@@ -22,7 +22,8 @@ export default new Router({
       name: 'MallClassify',
       component: MallClassify,
       meta: {
-        title: '分类'
+        title: '分类',
+        keepAlive: false
       }
     },
     {

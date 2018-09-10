@@ -36,6 +36,7 @@ export default {
       this.$refs.serachRef.focus()
     },
     onSearch() {
+      this.$refs.serachRef.blur()
       this.$emit('onSearchEmit', this.serachValue)
     },
     onCancel() {

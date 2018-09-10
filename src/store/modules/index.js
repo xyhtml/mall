@@ -35,6 +35,7 @@ const actions = {
     let _param = {
       categoryId: payload.categoryId, // 分类ID
       name: payload.name, // 作品名称
+      keyword: payload.keyword, // 作品编号
       page: payload.page, // 页码,默认0
       size: payload.size, // 页面大小,默认20
       tagIds: payload.tagIds // 标签ID

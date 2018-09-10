@@ -51,6 +51,7 @@ export default {
   },
   data() {
     return {
+      outPageIndex: 0,
       active: 1,
       headerTitle: '分类',
       leftIndex: 0,
@@ -130,7 +131,8 @@ export default {
       //
       scrollYTwo: '',
       listHeight: [],
-      toast: ''
+      toast: '',
+      createdRoActivated: 0
     }
   },
   computed: {
@@ -150,6 +152,7 @@ export default {
     }
   },
   created() {
+    this.createdRoActivated = 0
     this.getClassIfyInfo()
   },
   mounted() {},
@@ -206,6 +209,7 @@ export default {
       let twoListRef = this.$refs.twoListRef
       let el = twoListRef[index]
       this.scrollTwo.scrollToElement(el, 300)
+      this.outPageIndex = index
     },
     _initScroll() {
       this.scrollOne = new BScroll(this.$refs.leftWrapper, {
@@ -233,6 +237,15 @@ export default {
         height += item.clientHeight
         this.listHeight.push(height)
       }
+      // 从详情页返回后设置分类滚动条位置
+      if (
+        localStorage.getItem('classScroll') &&
+        localStorage.getItem('classScroll') >= 0
+      ) {
+        let twoListRef = this.$refs.twoListRef
+        let el = twoListRef[Number(localStorage.getItem('classScroll'))]
+        this.scrollTwo.scrollToElement(el, 1)
+      }
     },
     // 设置左边菜单滚动
     scrollOneElemnt(index) {
@@ -240,9 +253,10 @@ export default {
       let el = oneListRef[index]
       this.scrollOne.scrollToElement(el, 300, 0, -100)
     },
-    // tolink
+    // tolink more
     rightListFn(id, name) {
       // console.log(id, name)
+      localStorage.setItem('classScroll', this.outPageIndex)
       this.$router.push({
         path: '/mallClassIfyList',
         query: {
@@ -251,8 +265,10 @@ export default {
         }
       })
     },
+    // tolink tag
     rightListDiv(id, name, tagId, tagName) {
       // console.log(id, name)
+      localStorage.setItem('classScroll', this.outPageIndex)
       this.$router.push({
         path: '/mallClassIfyList',
         query: {
@@ -262,8 +278,15 @@ export default {
           tagName: tagName
         }
       })
-      // this.$router.push('/mallClassIfyList')
     }
+  },
+  activated() {
+    // let keepClass = localStorage.getItem('keepClass')
+    // console.log(keepClass)
+    // if (keepClass === 'true' && this.createdRoActivated > 0) {
+    //   this.getClassIfyInfo()
+    // }
+    // this.createdRoActivated = 3
   }
 }
 </script>

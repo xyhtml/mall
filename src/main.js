@@ -19,6 +19,9 @@ router.beforeEach((to, from, next) => {
     next()
   } else {
     localStorage.setItem('keep', false)
+    if (to.path === '/mallClassIfy' && from.path === '/') {
+      localStorage.setItem('classScroll', 0)
+    }
     next()
   }
 })

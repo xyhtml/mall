@@ -71,24 +71,39 @@ export default {
   methods: {
     // searchOk back
     onSearchEmitFn(params) {
+      this.listData = []
       this.onSearchName = params
       this.onSearchTrue = true
       this.classBotShow = false
-      this.finished = false
-      this.listData = []
       this.pageNum = 0
-      this.getSerachList(params)
+      this.finished = false
+      //
+      let patrn = /^[0-9]*$/
+      if (patrn.test(params)) {
+        console.log('num')
+        this.getSerachList('', params)
+      } else {
+        console.log('string')
+        this.getSerachList(params, '')
+      }
     },
     // loadMore
     onLoad() {
+      console.log('load')
+      let patrn = /^[0-9]*$/
       if (this.onSearchTrue) {
         // 搜索load
-        this.getSerachList(this.onSearchName)
+        if (patrn.test(this.onSearchName)) {
+          // 纯数字搜索
+          this.getSerachList('', this.onSearchName)
+        } else {
+          // 非纯数字搜索
+          this.getSerachList(this.onSearchName, '')
+        }
       } else {
         // 非搜索load
         this.getList()
       }
-      // console.log('load')
     },
     // to detills
     listDataFn(tagId) {
@@ -171,7 +186,9 @@ export default {
         )
     },
     // get Serach info
-    getSerachList(params) {
+    getSerachList(params, keywordNum) {
+      console.log('-------------')
+      this.finished = true
       if (this.pageNum === 0) {
         Toast.loading({
           mask: true,
@@ -182,8 +199,8 @@ export default {
       this.$store
         .dispatch({
           type: 'getList',
-          // categoryId: this.$route.query.id,
-          name: params,
+          name: params == 0 ? null : params,
+          keyword: keywordNum == 0 ? null : keywordNum,
           page: this.pageNum.toString(),
           size: '20',
           tagIds: null
@@ -207,11 +224,12 @@ export default {
                 this.pageNum += 1
                 // 长度小于每页个数断开请求
                 if (response.data.data.contents.length < 19) {
-                  this.loadingMore = false
                   this.finished = true
                   if (response.data.data.contents.length >= 4) {
                     this.classBotShow = true
                   }
+                } else {
+                  this.finished = false
                 }
               } else {
                 this.loadingMore = false
@@ -222,6 +240,7 @@ export default {
                 }
               }
             } else {
+              this.finished = true
               Dialog.alert({
                 message: '抱歉，网络错误!!!！'
               }).then(() => {
