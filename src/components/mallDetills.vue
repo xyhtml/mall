@@ -3,7 +3,7 @@
     <div class="mallDetillsTopImg">
       <div class="mdtiBack" @click="mdtiBackFn"><img src="../assets/images/ico-arr-right.png" alt=""></div>
       <van-swipe :autoplay="5000">
-        <van-swipe-item v-for="(image, index) in imagesTop" :key="index" :style="{'background-image': `url(http://api.zyk.artreedu.com/v1/attachments/img/${image})`}">
+        <van-swipe-item v-for="(image, index) in imagesTop" :key="index" :style="{'background-image': `url(http://api.zyk.artreedu.com/v1/attachments/img/${image}/thumb)`}">
           <!-- <img v-lazy="`http://api.zyk.artreedu.com/v1/attachments/img/${image}`" /> -->
         </van-swipe-item>
       </van-swipe>
