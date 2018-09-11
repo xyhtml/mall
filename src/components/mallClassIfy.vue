@@ -249,14 +249,13 @@ export default {
     },
     // 设置左边菜单滚动
     scrollOneElemnt(index) {
+      localStorage.setItem('classScroll', index)
       let oneListRef = this.$refs.oneListRef
       let el = oneListRef[index]
       this.scrollOne.scrollToElement(el, 300, 0, -100)
     },
     // tolink more
     rightListFn(id, name) {
-      // console.log(id, name)
-      localStorage.setItem('classScroll', this.outPageIndex)
       this.$router.push({
         path: '/mallClassIfyList',
         query: {
@@ -267,8 +266,6 @@ export default {
     },
     // tolink tag
     rightListDiv(id, name, tagId, tagName) {
-      // console.log(id, name)
-      localStorage.setItem('classScroll', this.outPageIndex)
       this.$router.push({
         path: '/mallClassIfyList',
         query: {

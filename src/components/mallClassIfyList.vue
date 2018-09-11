@@ -77,29 +77,13 @@ export default {
       this.classBotShow = false
       this.pageNum = 0
       this.finished = false
-      //
-      let patrn = /^[0-9]*$/
-      if (patrn.test(params)) {
-        console.log('num')
-        this.getSerachList('', params)
-      } else {
-        console.log('string')
-        this.getSerachList(params, '')
-      }
+      this.getSerachList(params)
     },
     // loadMore
     onLoad() {
       console.log('load')
-      let patrn = /^[0-9]*$/
       if (this.onSearchTrue) {
-        // 搜索load
-        if (patrn.test(this.onSearchName)) {
-          // 纯数字搜索
-          this.getSerachList('', this.onSearchName)
-        } else {
-          // 非纯数字搜索
-          this.getSerachList(this.onSearchName, '')
-        }
+        this.getSerachList(this.onSearchName)
       } else {
         // 非搜索load
         this.getList()
@@ -186,7 +170,7 @@ export default {
         )
     },
     // get Serach info
-    getSerachList(params, keywordNum) {
+    getSerachList(keyword) {
       console.log('-------------')
       this.finished = true
       if (this.pageNum === 0) {
@@ -199,8 +183,8 @@ export default {
       this.$store
         .dispatch({
           type: 'getList',
-          name: params == 0 ? null : params,
-          keyword: keywordNum == 0 ? null : keywordNum,
+          // name: '',
+          keyword: keyword,
           page: this.pageNum.toString(),
           size: '20',
           tagIds: null

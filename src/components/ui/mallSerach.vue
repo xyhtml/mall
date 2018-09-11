@@ -41,6 +41,7 @@ export default {
     },
     onCancel() {
       this.autofocus = true
+      this.$emit('onCancelEmit')
     }
   },
   cerated() {
