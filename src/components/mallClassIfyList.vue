@@ -88,6 +88,9 @@ export default {
         this.classSearchListShow = true
         this.pageNum = 0
         this.getSerachAssoList(val)
+      } else {
+        this.classSearchListShow = false
+        document.body.style.overflow = ''
       }
     },
     // searchOk back
@@ -297,6 +300,7 @@ export default {
               if (response.data.data.contents.length > 0) {
                 this.classSearchList = response.data.data.contents
               } else {
+                this.classSearchList = []
                 console.log('没有数据')
               }
             } else {
