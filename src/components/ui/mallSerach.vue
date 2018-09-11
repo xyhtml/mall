@@ -9,7 +9,7 @@
       <div class="mscLeft">
         <i class="mallSerachConIcon" @click="onSearch"></i>
         <div class="mallSerachConDiv" ref="testRef">
-          <input v-model="serachValue" type="text" placeholder="画作名称" class="mallSerachConDivInput" ref="serachRef" @keyup.enter="onSearch">
+          <input v-model="serachValue" type="text" placeholder="画作名称" class="mallSerachConDivInput" ref="serachRef" @keyup.enter="onSearch" @blur="blurFn">
         </div>
       </div>
       <div class="mscright">
@@ -29,11 +29,17 @@ export default {
       autofocus: true
     }
   },
+  watch: {
+    serachValue(val, oldVal) {
+      this.$emit('serachValueCom', this.serachValue)
+    }
+  },
   methods: {
     autofocusFn() {
       this.autofocus = false
       this.serachValue = ''
       this.$refs.serachRef.focus()
+      document.body.style.overflow = 'hidden'
     },
     onSearch() {
       this.$refs.serachRef.blur()
@@ -42,6 +48,9 @@ export default {
     onCancel() {
       this.autofocus = true
       this.$emit('onCancelEmit')
+    },
+    blurFn() {
+      document.body.style.overflow = ''
     }
   },
   cerated() {
@@ -143,7 +152,7 @@ export default {
         font-size: 14px;
         color: #212121;
         &:active {
-          color: #FFCA18;
+          color: #ffca18;
         }
       }
     }

@@ -1,7 +1,12 @@
 <template>
   <div class="mallClassify">
     <div class="msch">
-      <MallSerach @onSearchEmit="onSearchEmitFn"></MallSerach>
+      <MallSerach @onSearchEmit="onSearchEmitFn" @onCancelEmit="onCancelEmitFn" @serachValueCom="serachValue"></MallSerach>
+    </div>
+    <div class="classSearchList" v-show="classSearchListShow">
+      <ul class="classSearchListUi">
+        <li v-for="(item, index) in classSearchList" :key="index + 'list'" @click="classSearchListUiFn(item.name)">{{item.name}}</li>
+      </ul>
     </div>
     <div class="mallClssIfyListCon">
       <div class="mcilcPit" v-if="zpNodeShow">没有查到任何作品，谢谢！</div>
@@ -37,6 +42,10 @@ export default {
   },
   data() {
     return {
+      classSearchListShow: false,
+      classSearchList: [],
+      classSearchVal: '',
+      //
       active: 1,
       headerTitle: '分类',
       listData: [
@@ -69,8 +78,24 @@ export default {
     console.log('created')
   },
   methods: {
+    classSearchListUiFn(searchVal) {
+      this.onSearchEmitFn(searchVal)
+    },
+    // serachVal watch
+    serachValue(val) {
+      if (val !== '') {
+        this.classSearchVal = val
+        this.classSearchListShow = true
+        this.pageNum = 0
+        this.getSerachAssoList(val)
+      }
+    },
     // searchOk back
     onSearchEmitFn(params) {
+      //
+      this.classSearchListShow = false
+      document.body.style.overflow = ''
+      //
       this.listData = []
       this.onSearchName = params
       this.onSearchTrue = true
@@ -78,6 +103,12 @@ export default {
       this.pageNum = 0
       this.finished = false
       this.getSerachList(params)
+    },
+    // search Cancel back
+    onCancelEmitFn() {
+      console.log('取消搜索')
+      this.classSearchListShow = false
+      document.body.style.overflow = ''
     },
     // loadMore
     onLoad() {
@@ -241,6 +272,51 @@ export default {
             console.log(err)
           }
         )
+    },
+    // get Serach association info
+    getSerachAssoList(keyword) {
+      console.log('***********')
+      this.$store
+        .dispatch({
+          type: 'getList',
+          // name: '',
+          keyword: keyword,
+          page: this.pageNum.toString(),
+          size: '20',
+          tagIds: null
+        })
+        .then(
+          response => {
+            Toast.clear()
+            if (
+              response &&
+              response.status == 200 &&
+              response.data &&
+              response.data.data
+            ) {
+              if (response.data.data.contents.length > 0) {
+                this.classSearchList = response.data.data.contents
+              } else {
+                console.log('没有数据')
+              }
+            } else {
+              this.finished = true
+              Dialog.alert({
+                message: '抱歉，网络错误!!!！'
+              }).then(() => {
+                // on close
+              })
+            }
+          },
+          err => {
+            Dialog.alert({
+              message: '抱歉，网络错误！'
+            }).then(() => {
+              // on close
+            })
+            console.log(err)
+          }
+        )
     }
   },
   activated() {
@@ -264,6 +340,38 @@ export default {
   height: 100%;
   // overflow: hidden;
   position: relative;
+  .classSearchList {
+    position: fixed;
+    top: 50px;
+    left: 0;
+    bottom: 0;
+    background: #fff;
+    z-index: 100;
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    text-align: left;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    color: #666;
+    overflow: hidden;
+    overflow-y: auto;
+    .classSearchListUi {
+      width: 100%;
+      height: auto;
+      padding: 0 10px 60px 10px;
+      box-sizing: border-box;
+      & > li {
+        border-bottom: 1px solid #efefef;
+        height: 38px;
+        line-height: 38px;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  }
   .msch {
     position: fixed;
     top: 0;
