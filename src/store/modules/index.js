@@ -72,6 +72,20 @@ const actions = {
           reject(err)
         })
     })
+  },
+  // 轮播图
+  getAD() {
+    return new Promise((resolve, reject) => {
+      // GET
+      axios
+        .get(url + 'carousels/')
+        .then((response) => {
+          resolve(response)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
   }
 }
 export default {

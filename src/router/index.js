@@ -23,7 +23,7 @@ export default new Router({
       component: MallClassify,
       meta: {
         title: '分类',
-        keepAlive: false
+        keepAlive: true
       }
     },
     {

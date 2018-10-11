@@ -142,6 +142,12 @@ export default {
           message: '加载中...'
         })
       }
+      let tagIdsLet
+      if (this.$route.query.idList) {
+        tagIdsLet = this.$route.query.idList
+      } else {
+        tagIdsLet = this.$route.query.tagId
+      }
       this.$store
         .dispatch({
           type: 'getList',
@@ -149,7 +155,7 @@ export default {
           name: null,
           page: this.pageNum.toString(),
           size: '20',
-          tagIds: this.$route.query.tagId
+          tagIds: tagIdsLet
         })
         .then(
           response => {

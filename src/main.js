@@ -14,6 +14,12 @@ Vue.config.productionTip = false
 router.beforeEach((to, from, next) => {
   window.document.title = to.meta.title
   Toast.clear()
+  // 进入对应页面做组件缓存
+  if (from.name === 'MallClassifyList') {
+    localStorage.setItem('keepAlive', 'yes')
+  } else {
+    localStorage.setItem('keepAlive', 'no')
+  }
   if (to.path === '/mallClassIfyList' && from.path === '/mallClassIfy') {
     localStorage.setItem('keep', true)
     next()
@@ -24,6 +30,8 @@ router.beforeEach((to, from, next) => {
     }
     next()
   }
+  next()
+  console.log(localStorage.getItem('keepAlive'))
 })
 /* eslint-disable no-new */
 new Vue({

@@ -1,5 +1,5 @@
 <template>
-  <div class="mallClassIfy">
+  <div class="mallClassIfy" v-if="unbindShow">
     <MallHeader :headerTitle="headerTitle"></MallHeader>
     <div class="mallClassIfyCon">
       <div class="mallClassIfyLeft">
@@ -17,7 +17,7 @@
         <div class="rightWrapper" ref="rightWrapper">
           <div class="rightContent">
             <ul class="rightList">
-              <li ref="twoListRef" class="rightListLi" v-for="(item, index) in rightList" :key="index + 'two'">
+              <li ref="twoListRef" class="rightListLi" v-for="(item, index) in activeList" :key="index + 'two'">
                 <div class="rightListH3" @click="rightListFn(item.id, item.name)">
                   <div class="rightListTit">
                     <span>{{item.name}}</span>
@@ -25,10 +25,14 @@
                   </div>
                 </div>
                 <div class="rightListDivBox">
-                  <div class="rightListDiv" v-for="(items, indexs) in item.tags" :key="indexs + 'chlid'" @click="rightListDiv(item.id, item.name, items.id, items.name)">{{items.name}}</div>
+                  <div class="rightListDiv" :class="{'rldCurren': items.active}" v-for="(items, indexs) in item.tags" :key="indexs + 'chlid'" @click="rightListDiv(item.id, item.name, items.id, items.name, index, indexs)">{{items.name}}</div>
                 </div>
               </li>
             </ul>
+            <div class="btnOk">
+              <span class="cz" @click="czFn">重置</span>
+              <span class="qd" @click="qdFn">确定</span>
+            </div>
           </div>
         </div>
       </div>
@@ -40,6 +44,7 @@
 import MallNav from '@/components/ui/mallNav'
 import MallHeader from '@/components/ui/mallHeader'
 import BScroll from 'better-scroll'
+// import $ from 'jquery'
 //
 import Vue from 'vue'
 import { Toast, Dialog } from 'vant'
@@ -51,6 +56,14 @@ export default {
   },
   data() {
     return {
+      unbindShow: true,
+      obj: {},
+      activeList: [],
+      itemID: 0,
+      itemsID: 0,
+      indexSplicing: {},
+      tagIdSplicing: [],
+      indexYes: 0,
       outPageIndex: 0,
       active: 1,
       headerTitle: '分类',
@@ -152,8 +165,8 @@ export default {
     }
   },
   created() {
-    this.createdRoActivated = 0
-    this.getClassIfyInfo()
+    // this.createdRoActivated = 0
+    // this.getClassIfyInfo()
   },
   mounted() {},
   methods: {
@@ -178,6 +191,23 @@ export default {
             ) {
               this.leftList = response.data.data
               this.rightList = response.data.data
+              //
+              let datas = response.data.data
+              for (let a in datas) {
+                let aa = {}
+                aa.id = datas[a].id
+                aa.name = datas[a].name
+                aa.tags = []
+                for (let b in datas[a].tags) {
+                  let bb = {}
+                  bb.id = datas[a].tags[b].id
+                  bb.name = datas[a].tags[b].name
+                  bb.active = false
+                  aa.tags.push(bb)
+                }
+                this.activeList.push(aa)
+              }
+              console.log(this.activeList)
               this.$nextTick(() => {
                 this._initScroll()
                 this._calculateHeight()
@@ -202,6 +232,7 @@ export default {
     },
     // left click
     leftListFn(index, event) {
+      console.log('-----?')
       // console.log(event._constructed)
       if (!event._constructed) {
         return
@@ -265,28 +296,92 @@ export default {
       })
     },
     // tolink tag
-    rightListDiv(id, name, tagId, tagName) {
+    rightListDiv(id, name, tagId, tagName, index, indexs) {
+      // console.log(id, name, tagId, tagName)
+      this.obj.id = id
+      this.obj.name = name
+      this.obj.tagId = tagId
+      this.obj.tagName = tagName
+      this.obj.index = index
+      this.obj.indexs = indexs
+      // 记录选择过的编号
+      if (this.tagIdSplicing.indexOf(tagId) > -1) {
+        let index = this.tagIdSplicing.indexOf(tagId)
+        this.tagIdSplicing.splice(index, 1)
+      } else {
+        this.tagIdSplicing.push(tagId)
+      }
+      // 设置高亮
+      this.activeList[index].tags[indexs].active = !this.activeList[index].tags[indexs].active
+      console.log(this.tagIdSplicing, this.tagIdSplicing.join(','))
+    },
+    toMallList() {
       this.$router.push({
         path: '/mallClassIfyList',
         query: {
-          id: id,
-          name: name,
-          tagId: tagId,
-          tagName: tagName
+          id: this.obj.id,
+          name: this.obj.name,
+          tagId: this.obj.tagId,
+          tagName: this.obj.tagName,
+          idList: this.tagIdSplicing.join(',')
         }
       })
+    },
+    // 确定
+    qdFn() {
+      if (this.tagIdSplicing.length > 0) {
+        this.toMallList()
+      } else {
+        Dialog.alert({
+          message: '请至少选择一种类型'
+        }).then(() => {
+          // on close
+        })
+      }
+    },
+    // 重置
+    czFn() {
+      this.tagIdSplicing = []
+      for (let a in this.activeList) {
+        for (let b in this.activeList[a].tags) {
+          this.activeList[a].tags[b].active = false
+        }
+      }
     }
   },
   activated() {
+    if (
+      localStorage.getItem('keepAlive') &&
+      localStorage.getItem('keepAlive') === 'no'
+    ) {
+      // location.reload()
+      this.unbindShow = false
+      setTimeout(() => {
+        this.unbindShow = true
+        //
+        this.createdRoActivated = 0
+        this.getClassIfyInfo()
+        this.czFn()
+      }, 100)
+    }
+
     // let keepClass = localStorage.getItem('keepClass')
     // console.log(keepClass)
     // if (keepClass === 'true' && this.createdRoActivated > 0) {
     //   this.getClassIfyInfo()
     // }
     // this.createdRoActivated = 3
+  },
+  beforeRouteLeave(to, form, next) {
+    if (to.name != 'MallClassifyList') {
+      console.log(to.name, form.name)
+      // this.$destroy()
+    }
+    next()
   }
 }
 </script>
+
 <style lang="scss">
 .mallClassIfy {
   width: 100%;
@@ -294,6 +389,24 @@ export default {
   overflow: hidden;
   background: #fff;
   position: relative;
+  .btnOk {
+    width: 100%;
+    padding: 10px 0;
+    & > span {
+      display: inline-block;
+      padding: 6px 20px;
+      font-size: 16px;
+    }
+    .cz {
+      border: 1px solid #efefef;
+    }
+    .qd {
+      color: #fff;
+      border-radius: 0 2px 2px 0;
+      background: -moz-linear-gradient(left top, #ace, #f96);
+      background: -webkit-linear-gradient(left top, #ff6600, #ffcc33);
+    }
+  }
   .mallClassIfyCon {
     width: 100%;
     position: absolute;
@@ -407,6 +520,10 @@ export default {
             flex-wrap: wrap;
             justify-content: space-between;
             padding: 15px 0 0 0;
+            .rldCurren {
+              background: #ffca18 !important;
+              color: #fff !important;
+            }
             .rightListDiv {
               display: flex;
               justify-content: center;
